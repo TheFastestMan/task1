@@ -22,6 +22,10 @@ public class UserDao {
      * Возвращает всех сотрудников
      */
 
+//    public List<User> findAll(Session session) {
+//        return Collections.emptyList();
+//    }
+
     public List<User> findAll(Session session) {
         CriteriaBuilder cb = session.getCriteriaBuilder();
         CriteriaQuery<User> query = cb.createQuery(User.class);
@@ -34,8 +38,19 @@ public class UserDao {
     /**
      * Возвращает всех сотрудников с указанным именем
      */
+//    public List<User> findAllByFirstName(Session session, String firstName) {
+//        return Collections.emptyList();
+//    }
+
     public List<User> findAllByFirstName(Session session, String firstName) {
-        return Collections.emptyList();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<User> query = cb.createQuery(User.class);
+        Root<User> root = query.from(User.class);
+
+        query.select(root)
+                .where(cb.equal(root.get("personalInfo").get("firstname"), firstName));
+
+        return session.createQuery(query).getResultList();
     }
 
     /**
