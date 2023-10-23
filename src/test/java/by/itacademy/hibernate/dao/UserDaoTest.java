@@ -139,7 +139,7 @@ class UserDaoTest {
         session.beginTransaction();
 
         List<Object[]> results = userDao.isItPossible(session);
-        assertThat(results).hasSize(2);
+        assertThat(results).hasSize(5);
 
         List<String> names = results.stream().map(r -> ((User) r[0]).fullName()).collect(toList());
         assertThat(names).contains("Sergey Brin", "Steve Jobs");
