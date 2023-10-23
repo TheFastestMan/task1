@@ -7,6 +7,9 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.hibernate.Session;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import java.util.Collections;
 import java.util.List;
 
@@ -18,8 +21,14 @@ public class UserDao {
     /**
      * Возвращает всех сотрудников
      */
+
     public List<User> findAll(Session session) {
-        return Collections.emptyList();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<User> query = cb.createQuery(User.class);
+        Root<User> root = query.from(User.class);
+        query.select(root);
+
+        return session.createQuery(query).getResultList();
     }
 
     /**
