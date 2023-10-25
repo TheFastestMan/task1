@@ -1,10 +1,10 @@
 package by.itacademy.hibernate.dao;
 
 
+import by.itacademy.hibernate.entity.*;
 import by.itacademy.hibernate.utils.TestDataImporter;
-import by.itacademy.hibernate.entity.Payment;
-import by.itacademy.hibernate.entity.User;
 import by.itacademy.hibernate.util.HibernateUtil;
+import com.querydsl.core.Tuple;
 import lombok.Cleanup;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -15,8 +15,10 @@ import org.junit.jupiter.api.TestInstance;
 
 import java.util.List;
 
+import static by.itacademy.hibernate.entity.QUser.user;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 
 @TestInstance(PER_CLASS)
@@ -146,6 +148,83 @@ class UserDaoTest {
 
         List<Double> averagePayments = results.stream().map(r -> (Double) r[1]).collect(toList());
         assertThat(averagePayments).contains(500.0, 450.0);
+
+        session.getTransaction().commit();
+    }
+
+    ////
+
+    @Test
+    void findUserSalaries() {
+        @Cleanup Session session = sessionFactory.openSession();
+        session.beginTransaction();
+
+        List<Integer> salaries = userDao.findUserSalaries(session);
+
+        assertThat(salaries).hasSize(14);
+        assertThat(salaries).contains(100, 300, 500, 250,
+                600, 500, 400, 300,
+                500, 500, 500, 300,
+                300, 300
+        );
+
+        session.getTransaction().commit();
+    }
+
+    @Test
+    void findHighestPaymentAmongAllUsers() {
+        @Cleanup Session session = sessionFactory.openSession();
+        session.beginTransaction();
+
+        Integer highestPayment = userDao.findHighestPaymentAmongAllUsers(session);
+        assertThat(highestPayment).isEqualTo(600);
+
+        session.getTransaction().commit();
+    }
+
+    @Test
+    void findRolesOfAllUsers() {
+        @Cleanup Session session = sessionFactory.openSession();
+        session.beginTransaction();
+
+        List<Tuple> roles = userDao.findRolesOfAllUsers(session);
+
+        assertThat(roles).isNotNull();
+        assertThat(roles).isNotEmpty();
+
+        assertThat(roles).allSatisfy(tuple -> {
+            Role role = tuple.get(user.role);
+            assertThat(role).isNotNull();
+            assertThat(role).isIn(Role.values());
+        });
+
+        session.getTransaction().commit();
+    }
+
+    @Test
+    public void testFindLanguagesByFirstAndLastName() {
+        @Cleanup Session session = sessionFactory.openSession();
+        session.beginTransaction();
+
+        String firstName = "Sergey";
+        String lastName = "Brin";
+        List<String> languages = userDao.findLanguageByFirstAndLastName(session, firstName, lastName);
+
+        assertEquals(1, languages.size());
+
+        session.getTransaction().commit();
+    }
+
+
+    @Test
+    public void testFindAgeByLastName() {
+        @Cleanup Session session = sessionFactory.openSession();
+        session.beginTransaction();
+
+        String lastName = "Brin";
+        long age = userDao.findAgeByLastName(session, lastName);
+
+        assertEquals(50, age);
 
         session.getTransaction().commit();
     }

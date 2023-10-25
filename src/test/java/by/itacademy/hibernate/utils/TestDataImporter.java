@@ -21,15 +21,15 @@ public class TestDataImporter {
         Company google = saveCompany(session, "Google");
 
         User billGates = saveUser(session, "Bill", "Gates",
-                LocalDate.of(1955, Month.OCTOBER, 28), microsoft);
+                LocalDate.of(1955, Month.OCTOBER, 28), microsoft, Role.ADMIN);
         User steveJobs = saveUser(session, "Steve", "Jobs",
-                LocalDate.of(1955, Month.FEBRUARY, 24), apple);
+                LocalDate.of(1955, Month.FEBRUARY, 24), apple, Role.ADMIN);
         User sergeyBrin = saveUser(session, "Sergey", "Brin",
-                LocalDate.of(1973, Month.AUGUST, 21), google);
+                LocalDate.of(1973, Month.AUGUST, 21), google, Role.USER);
         User timCook = saveUser(session, "Tim", "Cook",
-                LocalDate.of(1960, Month.NOVEMBER, 1), apple);
+                LocalDate.of(1960, Month.NOVEMBER, 1), apple, Role.USER);
         User dianeGreene = saveUser(session, "Diane", "Greene",
-                LocalDate.of(1955, Month.JANUARY, 1), google);
+                LocalDate.of(1955, Month.JANUARY, 1), google, Role.USER);
 
         savePayment(session, billGates, 100);
         savePayment(session, billGates, 300);
@@ -49,6 +49,12 @@ public class TestDataImporter {
         savePayment(session, dianeGreene, 300);
         savePayment(session, dianeGreene, 300);
         savePayment(session, dianeGreene, 300);
+
+        saveProfile(session, billGates, "Lenina", Language.JAVA);
+        saveProfile(session, steveJobs, "Komsomol", Language.GO);
+        saveProfile(session, timCook, "Soviet", Language.KOTLIN);
+        saveProfile(session, sergeyBrin, "Gagarina", Language.PYTHON);
+        saveProfile(session, dianeGreene, "Tukaya", Language.JAVA);
     }
 
     private Company saveCompany(Session session, String name) {
@@ -64,7 +70,8 @@ public class TestDataImporter {
                           String firstName,
                           String lastName,
                           LocalDate birthday,
-                          Company company) {
+                          Company company,
+                          Role role) {
         User user = User.builder()
                 .username(firstName + lastName)
                 .personalInfo(PersonalInfo.builder()
@@ -72,6 +79,7 @@ public class TestDataImporter {
                         .lastname(lastName)
                         .birthDate(new Birthday(birthday))
                         .build())
+                .role(role)
                 .company(company)
                 .build();
         session.save(user);
@@ -86,4 +94,15 @@ public class TestDataImporter {
                 .build();
         session.save(payment);
     }
+
+    private void saveProfile(Session session, User user, String street, Language language) {
+        Profile profile = Profile.builder()
+                .user(user)
+                .street(street)
+                .language(language)
+                .build();
+        session.save(profile);
+    }
+
+
 }
